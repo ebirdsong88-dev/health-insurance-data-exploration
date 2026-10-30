@@ -17,7 +17,6 @@ A health insurance company wants to understand what drives the cost of covering 
 3. [Descriptive Statistics](#3-descriptive-statistics)
 4. [Parametric Test: BMI by Region](#4-parametric-test-bmi-by-region)
 5. [Nonparametric Test: Charges by Smoking Status](#5-nonparametric-test-charges-by-smoking-status)
-6. [References](#6-references)
 
 ---
 
@@ -253,17 +252,3 @@ The p-value is far below 0.05, so **the null hypothesis is rejected.**
 - **The Mann-Whitney test compares whole distributions,** not means specifically. Results are stated in terms of medians and ranks, so they cannot be read as "the average smoker costs $X more."
 - **Smoking status is self-reported** and recorded only as yes/no. The data captures neither how much someone smokes nor former smokers.
 - **The p-value shows the difference is real but not its cause.** Other variables such as age and BMI were not controlled for. A regression model would be a natural next step.
-
----
-
-## 6. References
-
-Mann, H. B., & Whitney, D. R. (1947). On a test of whether one of two random variables is stochastically larger than the other. *The Annals of Mathematical Statistics, 18*(1), 50–60.
-
-The pandas development team. (2024). *pandas* [Computer software]. https://pandas.pydata.org
-
-Virtanen, P., Gommers, R., Oliphant, T. E., et al. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. *Nature Methods, 17*, 261–272.
-
-Waskom, M. L. (2021). seaborn: Statistical data visualization. *Journal of Open Source Software, 6*(60), 3021.
-
-Welch, B. L. (1951). On the comparison of several mean values: An alternative approach. *Biometrika, 38*(3/4), 330–336.
