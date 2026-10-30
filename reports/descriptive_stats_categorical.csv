@@ -1,0 +1,14 @@
+variable,category,count,percent
+sex,male,676,50.52
+sex,female,662,49.48
+smoker,no,1064,79.52
+smoker,yes,274,20.48
+region,southeast,364,27.2
+region,southwest,325,24.29
+region,northwest,325,24.29
+region,northeast,324,24.22
+Level,C,427,31.91
+Level,D,348,26.01
+Level,B,264,19.73
+Level,E,187,13.98
+Level,A,112,8.37

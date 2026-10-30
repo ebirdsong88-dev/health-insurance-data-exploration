@@ -135,3 +135,63 @@ print("\nSmoking status by region (% of each region):")
 print((pd.crosstab(df["region"], df["smoker"], normalize="index") * 100).round(1))
 
 print("\nBivariate charts saved to:", IMAGES_DIR)
+
+# Descriptive Statistics
+REPORTS_DIR = BASE_DIR / "reports"
+REPORTS_DIR.mkdir(exist_ok=True)
+
+# Show wide tables in full in the terminal
+pd.set_option("display.width", 200)
+pd.set_option("display.max_columns", None)
+
+# Separate the numeric and categorical columns
+numeric_cols = df.select_dtypes(include="number").columns.tolist()
+categorical_cols = df.select_dtypes(exclude="number").columns.tolist()
+print("\nNumeric variables:", numeric_cols)
+print("Categorical variables:", categorical_cols)
+
+# Quantitative variables
+num = df[numeric_cols]
+q1 = num.quantile(0.25)
+q3 = num.quantile(0.75)
+
+numeric_summary = pd.DataFrame({
+    "count": num.count(),
+    "mean": num.mean(),
+    "median": num.median(),
+    "min": num.min(),
+    "max": num.max(),
+    "range": num.max() - num.min(),
+    "variance": num.var(),           # sample variance
+    "std_dev": num.std(),            # sample standard deviation
+    "10th_pct": num.quantile(0.10),
+    "Q1_25th": q1,
+    "Q3_75th": q3,
+    "90th_pct": num.quantile(0.90),
+    "IQR": q3 - q1,
+    "skewness": num.skew(),          # helps decide parametric vs. nonparametric
+}).round(2)
+
+print("\nDescriptive statistics - quantitative variables:")
+print(numeric_summary)
+numeric_summary.to_csv(REPORTS_DIR / "descriptive_stats_numeric.csv")
+
+# Qualitative variables
+freq_tables = []
+for col in categorical_cols:
+    counts = df[col].value_counts().rename_axis("category")
+    percents = (df[col].value_counts(normalize=True) * 100).rename_axis("category")
+
+    table = pd.DataFrame({"count": counts, "percent": percents.round(2)})
+    print(f"\nFrequency table - {col}:")
+    print(table)
+
+    # Add the variable name so all tables can be stacked into one file
+    table = table.reset_index()
+    table.insert(0, "variable", col)
+    freq_tables.append(table)
+
+categorical_summary = pd.concat(freq_tables, ignore_index=True)
+categorical_summary.to_csv(REPORTS_DIR / "descriptive_stats_categorical.csv", index=False)
+
+print("\nDescriptive statistics saved to:", REPORTS_DIR)
