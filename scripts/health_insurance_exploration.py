@@ -80,3 +80,58 @@ plt.ylabel("Number of Customers")
 save_chart("univariate_region.png")
 
 print("\nUnivariate charts saved to:", IMAGES_DIR)
+
+# Bivariate visualizations
+# 1. Charges vs. BMI (quantitative vs. quantitative)
+#    Scatter plot with a trend line to show the relationship
+plt.figure(figsize=(8, 5))
+sns.regplot(data=df, x="bmi", y="charges",
+            scatter_kws={"alpha": 0.5}, line_kws={"color": "red"})
+plt.title("Insurance Charges vs. BMI")
+plt.xlabel("BMI")
+plt.ylabel("Charges ($)")
+save_chart("bivariate_charges_bmi.png")
+
+# Correlation coefficient to put a number on the relationship
+r = df["bmi"].corr(df["charges"])
+print(f"\nCorrelation between BMI and charges: r = {r:.3f}")
+
+# 2. Charges vs. Smoker (quantitative vs. categorical)
+#    Box plot compares the distribution of charges for each group
+plt.figure(figsize=(6, 5))
+sns.boxplot(data=df, x="smoker", y="charges")
+plt.title("Insurance Charges by Smoking Status")
+plt.xlabel("Smoker")
+plt.ylabel("Charges ($)")
+save_chart("bivariate_charges_smoker.png")
+
+print("\nCharges by smoking status:")
+print(df.groupby("smoker")["charges"].describe().round(2))
+
+# 3. BMI vs. Region (quantitative vs. categorical)
+#    Box plot compares the BMI distribution across regions
+plt.figure(figsize=(8, 5))
+sns.boxplot(data=df, x="region", y="bmi")
+plt.title("BMI by Region")
+plt.xlabel("Region")
+plt.ylabel("BMI")
+save_chart("bivariate_bmi_region.png")
+
+print("\nBMI by region:")
+print(df.groupby("region")["bmi"].describe().round(2))
+
+# 4. Smoker vs. Region (categorical vs. categorical)
+#    Grouped bar chart shows smoker counts within each region
+plt.figure(figsize=(8, 5))
+sns.countplot(data=df, x="region", hue="smoker")
+plt.title("Smoking Status by Region")
+plt.xlabel("Region")
+plt.ylabel("Number of Customers")
+plt.legend(title="Smoker")
+save_chart("bivariate_smoker_region.png")
+
+# Percentages make regions of different sizes easier to compare
+print("\nSmoking status by region (% of each region):")
+print((pd.crosstab(df["region"], df["smoker"], normalize="index") * 100).round(1))
+
+print("\nBivariate charts saved to:", IMAGES_DIR)
