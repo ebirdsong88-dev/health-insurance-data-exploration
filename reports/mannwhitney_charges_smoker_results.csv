@@ -1,0 +1,2 @@
+test,n_smokers,n_nonsmokers,median_smokers,median_nonsmokers,u_statistic,p_value,rank_biserial_r,prob_smoker_higher,decision
+Mann-Whitney U (two-sided),274,1064,34456.3505,7345.405,284133.0,5.270233444503571e-130,0.9492138192195818,0.9746069096097909,Reject H0

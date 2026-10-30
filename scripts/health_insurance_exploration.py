@@ -317,3 +317,90 @@ anova_results = pd.DataFrame([{
 anova_results.to_csv(REPORTS_DIR / "anova_bmi_region_results.csv", index=False)
 posthoc.to_csv(REPORTS_DIR / "anova_bmi_region_posthoc.csv", index=False)
 print("\nANOVA results saved to:", REPORTS_DIR)
+
+# Nonparametric test - Mann-Whitney U (charges by smoker)
+# Research question: Do insurance charges differ between smokers and nonsmokers?
+# H0: The distribution of charges is the same for smokers and nonsmokers.
+# H1: The distribution of charges differs between smokers and nonsmokers.
+
+print("\n" + "=" * 60)
+print("PART III: MANN-WHITNEY U TEST - CHARGES BY SMOKING STATUS")
+print("=" * 60)
+print("Research question: Do insurance charges differ between smokers and nonsmokers?")
+print("H0: The distribution of charges is the same for smokers and nonsmokers.")
+print("H1: The distribution of charges differs between smokers and nonsmokers.")
+print(f"Significance level: alpha = {ALPHA}")
+
+smokers = df.loc[df["smoker"] == "yes", "charges"]
+nonsmokers = df.loc[df["smoker"] == "no", "charges"]
+
+# Group summary: medians and IQR are reported because the data is skewed
+charges_summary = df.groupby("smoker")["charges"].agg(
+    count="count",
+    median="median",
+    q1=lambda x: x.quantile(0.25),
+    q3=lambda x: x.quantile(0.75),
+    mean="mean",
+    skewness="skew",
+)
+print("\nCharges summary by smoking status:")
+print(charges_summary)
+
+# --- Why nonparametric? Check normality of each group ---
+# H0 for Shapiro-Wilk: the group's data is normally distributed
+print("\nNormality check (Shapiro-Wilk):")
+for label, group in [("smokers", smokers), ("nonsmokers", nonsmokers)]:
+    w_stat, p_norm = stats.shapiro(group)
+    verdict = "normal" if p_norm > ALPHA else "NOT normal"
+    print(f"  {label:<11} W = {w_stat:.4f}, p = {p_norm:.4e} -> {verdict}")
+
+# Histograms show the skewed, non-normal shape of each group
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+for ax, label, group in zip(axes, ["Nonsmokers", "Smokers"], [nonsmokers, smokers]):
+    sns.histplot(group, bins=30, kde=True, ax=ax)
+    ax.set_title(f"Charges Distribution: {label}")
+    ax.set_xlabel("Charges ($)")
+    ax.set_ylabel("Number of Customers")
+save_chart("mannwhitney_charges_distributions.png")
+
+# --- Run the Mann-Whitney U test (two-sided) ---
+u_stat, mw_p = stats.mannwhitneyu(smokers, nonsmokers, alternative="two-sided")
+
+# Effect size
+n1, n2 = len(smokers), len(nonsmokers)
+prob_superiority = u_stat / (n1 * n2)        # chance a random smoker pays more
+rank_biserial = 2 * prob_superiority - 1     # ranges from -1 to 1
+
+median_diff = smokers.median() - nonsmokers.median()
+median_ratio = smokers.median() / nonsmokers.median()
+
+print("\nMann-Whitney U test results:")
+print(f"  U statistic          = {u_stat:,.1f}")
+print(f"  p-value              = {mw_p:.4e}")
+print(f"  Sample sizes         = smokers {n1}, nonsmokers {n2}")
+print(f"  Median difference    = ${median_diff:,.2f} "
+      f"(smokers' median is {median_ratio:.1f}x nonsmokers')")
+print(f"  Rank-biserial r      = {rank_biserial:.4f}")
+print(f"  Probability a random smoker has higher charges "
+      f"than a random nonsmoker = {prob_superiority:.1%}")
+
+if mw_p < ALPHA:
+    print(f"  Decision: p < {ALPHA}, so REJECT H0. Charges differ by smoking status.")
+else:
+    print(f"  Decision: p >= {ALPHA}, so FAIL TO REJECT H0. No evidence charges differ.")
+
+# Save results for the README/report
+mw_results = pd.DataFrame([{
+    "test": "Mann-Whitney U (two-sided)",
+    "n_smokers": n1,
+    "n_nonsmokers": n2,
+    "median_smokers": smokers.median(),
+    "median_nonsmokers": nonsmokers.median(),
+    "u_statistic": u_stat,
+    "p_value": mw_p,
+    "rank_biserial_r": rank_biserial,
+    "prob_smoker_higher": prob_superiority,
+    "decision": "Reject H0" if mw_p < ALPHA else "Fail to reject H0",
+}])
+mw_results.to_csv(REPORTS_DIR / "mannwhitney_charges_smoker_results.csv", index=False)
+print("\nMann-Whitney results saved to:", REPORTS_DIR)
