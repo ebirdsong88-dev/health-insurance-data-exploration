@@ -1,0 +1,2 @@
+test,levene_p,f_statistic,p_value,eta_squared,decision
+Welch's one-way ANOVA,0.0003506713821406236,35.812106038221756,1.2867155405320293e-21,0.08153048145309479,Reject H0
